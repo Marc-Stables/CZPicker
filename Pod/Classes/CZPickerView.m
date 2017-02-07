@@ -166,6 +166,22 @@ typedef void (^CZDismissCompletionCallback)(void);
     }];
 }
 
+- (void)dismissDynamic {
+    [UIView animateWithDuration:self.animationDuration delay:0 usingSpringWithDamping:0.7f initialSpringVelocity:3.0f options:UIViewAnimationOptionAllowAnimatedContent animations:^{
+        self.containerView.center = CGPointMake(self.center.x, self.center.y + self.frame.size.height);
+    }completion:^(BOOL finished) {
+    }];
+    
+    [UIView animateWithDuration:self.animationDuration animations:^{
+        self.backgroundDimmingView.alpha = 0.0;
+    } completion:^(BOOL finished) {
+        if(finished){
+            [self removeFromSuperview];
+        }
+    }];
+    
+}
+    
 - (UIView *)buildContainerView {
     CGFloat widthRatio = _pickerWidth ? _pickerWidth / [UIScreen mainScreen].bounds.size.width : 0.8;
     CGAffineTransform transform = CGAffineTransformMake(widthRatio, 0, 0, 0.8, 0, 0);
@@ -240,7 +256,7 @@ typedef void (^CZDismissCompletionCallback)(void);
     [cancelButton setTitle:self.cancelButtonTitle forState:UIControlStateNormal];
     [cancelButton setTitleColor: self.cancelButtonNormalColor forState:UIControlStateNormal];
     [cancelButton setTitleColor:self.cancelButtonHighlightedColor forState:UIControlStateHighlighted];
-    cancelButton.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+    cancelButton.titleLabel.font = self.cancelButtonLabelTextFont ? self.cancelButtonLabelTextFont : [UIFont boldSystemFontOfSize:16];
     cancelButton.backgroundColor = self.cancelButtonBackgroundColor;
     [cancelButton addTarget:self action:@selector(cancelButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:cancelButton];
@@ -249,7 +265,7 @@ typedef void (^CZDismissCompletionCallback)(void);
     [confirmButton setTitle:self.confirmButtonTitle forState:UIControlStateNormal];
     [confirmButton setTitleColor:self.confirmButtonNormalColor forState:UIControlStateNormal];
     [confirmButton setTitleColor:self.confirmButtonHighlightedColor forState:UIControlStateHighlighted];
-    confirmButton.titleLabel.font = [UIFont systemFontOfSize:16];
+    confirmButton.titleLabel.font = self.confirmButtonLabelTextFont ? self.confirmButtonLabelTextFont : [UIFont systemFontOfSize:16];
     confirmButton.backgroundColor = self.confirmButtonBackgroundColor;
     [confirmButton addTarget:self action:@selector(confirmButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:confirmButton];
@@ -356,6 +372,12 @@ typedef void (^CZDismissCompletionCallback)(void);
     
     if(self.checkmarkColor){
         cell.tintColor = self.checkmarkColor;
+    }
+    if(self.tableViewCellFont) {
+        cell.textLabel.font = self.tableViewCellFont;
+    }
+    if(self.tableViewCellColor) {
+        cell.textLabel.textColor = self.tableViewCellColor;
     }
     return cell;
 }

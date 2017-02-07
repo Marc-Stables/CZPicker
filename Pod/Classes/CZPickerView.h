@@ -83,6 +83,9 @@
 - (void)show;
 - (void)showInContainer:(id)container;
 
+/** dismiss the picker programmatically */
+- (void)dismissDynamic;
+    
 /** reload the picker */
 - (void)reloadData;
 
@@ -117,6 +120,15 @@
 
 /** picker header title color */
 @property (nonatomic, strong) UIColor *headerTitleColor;
+    
+/** tableviewcell font */
+@property (nonatomic, strong) UIFont *tableViewCellFont;
+    
+/** tableviewcell color */
+@property (nonatomic, strong) UIColor *tableViewCellColor;
+    
+/** picker cancel button label text font */
+@property (nonatomic, strong) UIFont *cancelButtonLabelTextFont;
 
 /** picker cancel button background color */
 @property (nonatomic, strong) UIColor *cancelButtonBackgroundColor;
@@ -126,6 +138,9 @@
 
 /** picker cancel button highlighted state color */
 @property (nonatomic, strong) UIColor *cancelButtonHighlightedColor;
+    
+/** picker confirm button label text font */
+@property (nonatomic, strong) UIFont *confirmButtonLabelTextFont;
 
 /** picker confirm button background color */
 @property (nonatomic, strong) UIColor *confirmButtonBackgroundColor;
