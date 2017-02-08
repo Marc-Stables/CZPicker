@@ -302,13 +302,19 @@ typedef void (^CZDismissCompletionCallback)(void);
 - (IBAction)confirmButtonPressed:(id)sender{
     [self dismissPicker:^{
         if(self.allowMultipleSelection && [self.delegate respondsToSelector:@selector(czpickerView:didConfirmWithItemsAtRows:)]){
-            [self.delegate czpickerView:self didConfirmWithItemsAtRows:[self selectedRows]];
+            if (self.selectedIndexPaths > 0) {
+                [self.delegate czpickerView:self didConfirmWithItemsAtRows:[self selectedRows]];
+            } else {
+                [self.delegate czPickerViewDidClickConfirmWithNoSelection:self];
+            }
         }
         
         else if(!self.allowMultipleSelection && [self.delegate respondsToSelector:@selector(czpickerView:didConfirmWithItemAtRow:)]){
             if (self.selectedIndexPaths.count > 0){
                 NSInteger row = ((NSIndexPath *)self.selectedIndexPaths[0]).row;
                 [self.delegate czpickerView:self didConfirmWithItemAtRow:row];
+            } else {
+                [self.delegate czPickerViewDidClickConfirmWithNoSelection:self];
             }
         }
     }];

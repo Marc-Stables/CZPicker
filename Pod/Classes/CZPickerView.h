@@ -53,6 +53,9 @@
 
 /** delegate method for canceling */
 - (void)czpickerViewDidClickCancelButton:(CZPickerView *)pickerView;
+    
+/** delegate method for confirming with no row selection */
+- (void)czPickerViewDidClickConfirmWithNoSelection:(CZPickerView *)pickerView;
 
 /* picker will show */
 - (void)czpickerViewWillDisplay:(CZPickerView *)pickerView;
