@@ -155,11 +155,11 @@ typedef void (^CZDismissCompletionCallback)(void);
         self.backgroundDimmingView.alpha = 0.0;
     } completion:^(BOOL finished) {
         if(finished){
-            if(completion){
-                completion();
-            }
             if([self.delegate respondsToSelector:@selector(czpickerViewDidDismiss:)]){
                 [self.delegate czpickerViewDidDismiss:self];
+            }
+            if(completion){
+                completion();
             }
             [self removeFromSuperview];
         }
