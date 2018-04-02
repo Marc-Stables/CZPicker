@@ -20,15 +20,27 @@
  Implement at least one of the following method,
  CZPickerView:(CZPickerView *)pickerView
  attributedTitleForRow:(NSInteger)row has higer priority
-*/
+ */
 
 /* attributed picker item title for each row */
 - (NSAttributedString *)czpickerView:(CZPickerView *)pickerView
-                            attributedTitleForRow:(NSInteger)row;
+               attributedTitleForRow:(NSInteger)row;
 
 /* picker item title for each row */
 - (NSString *)czpickerView:(CZPickerView *)pickerView
-                            titleForRow:(NSInteger)row;
+               titleForRow:(NSInteger)row;
+
+/* picker item detail for each row */
+- (NSString *)czpickerView:(CZPickerView *)pickerView
+              detailForRow:(NSInteger)row;
+
+/* text label color */
+- (UIColor *)czpickerView:(CZPickerView *)pickerView
+     textLabelColorForRow:(NSInteger)row;
+
+/* detail label color */
+- (UIColor *)czpickerView:(CZPickerView *)pickerView
+   detailLabelColorForRow:(NSInteger)row;
 
 /* picker item image for each row */
 - (UIImage *)czpickerView:(CZPickerView *)pickerView imageForRow:(NSInteger)row;
@@ -41,7 +53,7 @@
 
 /** delegate method for picking one item */
 - (void)czpickerView:(CZPickerView *)pickerView
-          didConfirmWithItemAtRow:(NSInteger)row;
+didConfirmWithItemAtRow:(NSInteger)row;
 
 /*
  delegate method for picking multiple items,
@@ -49,13 +61,13 @@
  rows is an array of NSNumbers
  */
 - (void)czpickerView:(CZPickerView *)pickerView
-          didConfirmWithItemsAtRows:(NSArray *)rows;
+didConfirmWithItemsAtRows:(NSArray *)rows;
 
 /** delegate method for canceling */
 - (void)czpickerViewDidClickCancelButton:(CZPickerView *)pickerView;
-    
+
 /** delegate method for confirming with no row selection */
-- (void)czPickerViewDidClickConfirmWithNoSelection:(CZPickerView *)pickerView;
+- (void)czpickerViewDidConfirmWithNoSelection:(CZPickerView *)pickerView;
 
 /* picker will show */
 - (void)czpickerViewWillDisplay:(CZPickerView *)pickerView;
@@ -88,7 +100,7 @@
 
 /** dismiss the picker programmatically */
 - (void)dismissDynamic;
-    
+
 /** reload the picker */
 - (void)reloadData;
 
@@ -115,6 +127,9 @@
  property is YES, then footerView will be shown */
 @property BOOL allowMultipleSelection;
 
+/** should cell text wrap **/
+@property BOOL cellTextLabelShouldWrap;
+
 /** picker header background color */
 @property (nonatomic, strong) UIColor *headerBackgroundColor;
 
@@ -123,13 +138,22 @@
 
 /** picker header title color */
 @property (nonatomic, strong) UIColor *headerTitleColor;
-    
+
 /** tableviewcell font */
 @property (nonatomic, strong) UIFont *tableViewCellFont;
-    
+
 /** tableviewcell color */
 @property (nonatomic, strong) UIColor *tableViewCellColor;
-    
+
+/** tableviewcell detail font **/
+@property (nonatomic, strong) UIFont *tableViewCellDetailFont;
+
+/** tableview cell style **/
+@property UITableViewCellStyle tableViewCellStyle;
+
+/** tableview row height **/
+@property CGFloat tableViewRowHeight;
+
 /** picker cancel button label text font */
 @property (nonatomic, strong) UIFont *cancelButtonLabelTextFont;
 
@@ -141,7 +165,7 @@
 
 /** picker cancel button highlighted state color */
 @property (nonatomic, strong) UIColor *cancelButtonHighlightedColor;
-    
+
 /** picker confirm button label text font */
 @property (nonatomic, strong) UIFont *confirmButtonLabelTextFont;
 

@@ -9,7 +9,7 @@
 
 #define CZP_FOOTER_HEIGHT 44.0
 #define CZP_HEADER_HEIGHT 44.0
-#if __IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_7_1 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED > __IPHONE_7_1
 #define CZP_BACKGROUND_ALPHA 0.9
 #else
 #define CZP_BACKGROUND_ALPHA 0.3
@@ -64,6 +64,11 @@ typedef void (^CZDismissCompletionCallback)(void);
         self.confirmButtonNormalColor = [UIColor whiteColor];
         self.confirmButtonHighlightedColor = [UIColor colorWithRed:236.0/255 green:240/255.0 blue:241.0/255 alpha:1];
         self.confirmButtonBackgroundColor = [UIColor colorWithRed:56.0/255 green:185.0/255 blue:158.0/255 alpha:1];
+        
+        self.tableViewCellStyle = UITableViewCellStyleDefault;
+        self.tableViewRowHeight = 44.0;
+        
+        self.cellTextLabelShouldWrap = NO;
         
         _previousBounds = [UIScreen mainScreen].bounds;
         self.frame = _previousBounds;
@@ -181,7 +186,7 @@ typedef void (^CZDismissCompletionCallback)(void);
     }];
     
 }
-    
+
 - (UIView *)buildContainerView {
     CGFloat widthRatio = _pickerWidth ? _pickerWidth / [UIScreen mainScreen].bounds.size.width : 0.8;
     CGAffineTransform transform = CGAffineTransformMake(widthRatio, 0, 0, 0.8, 0, 0);
@@ -201,7 +206,9 @@ typedef void (^CZDismissCompletionCallback)(void);
     CGRect tableRect;
     float heightOffset = CZP_HEADER_HEIGHT + CZP_FOOTER_HEIGHT;
     if(n > 0){
-        float height = n * 44.0;
+        //float height = n * 50.0;
+        
+        float height = n * self.tableViewRowHeight;
         height = height > newRect.size.height - heightOffset ? newRect.size.height -heightOffset : height;
         tableRect = CGRectMake(0, 44.0, newRect.size.width, height);
     } else {
@@ -211,6 +218,9 @@ typedef void (^CZDismissCompletionCallback)(void);
     tableView.delegate = self;
     tableView.dataSource = self;
     tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+    tableView.rowHeight = self.tableViewRowHeight;
+    
     return tableView;
 }
 
@@ -305,7 +315,7 @@ typedef void (^CZDismissCompletionCallback)(void);
             if (self.selectedIndexPaths > 0) {
                 [self.delegate czpickerView:self didConfirmWithItemsAtRows:[self selectedRows]];
             } else {
-                [self.delegate czPickerViewDidClickConfirmWithNoSelection:self];
+                [self.delegate czpickerViewDidConfirmWithNoSelection:self];
             }
         }
         
@@ -314,7 +324,7 @@ typedef void (^CZDismissCompletionCallback)(void);
                 NSInteger row = ((NSIndexPath *)self.selectedIndexPaths[0]).row;
                 [self.delegate czpickerView:self didConfirmWithItemAtRow:row];
             } else {
-                [self.delegate czPickerViewDidClickConfirmWithNoSelection:self];
+                [self.delegate czpickerViewDidConfirmWithNoSelection:self];
             }
         }
     }];
@@ -356,7 +366,7 @@ typedef void (^CZDismissCompletionCallback)(void);
     static NSString *cellIdentifier = @"czpicker_view_identifier";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
     if (!cell) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier: cellIdentifier];
+        cell = [[UITableViewCell alloc] initWithStyle:self.tableViewCellStyle reuseIdentifier: cellIdentifier];
     }
     cell.accessoryType = UITableViewCellAccessoryNone;
     for(NSIndexPath *ip in self.selectedIndexPaths){
@@ -374,17 +384,37 @@ typedef void (^CZDismissCompletionCallback)(void);
         cell.textLabel.attributedText = [self.dataSource czpickerView:self attributedTitleForRow:indexPath.row];
     } else if([self.dataSource respondsToSelector:@selector(czpickerView:titleForRow:)]){
         cell.textLabel.text = [self.dataSource czpickerView:self titleForRow:indexPath.row];
+        if([self.dataSource respondsToSelector:@selector(czpickerView:detailForRow:)]) {
+            cell.detailTextLabel.text = [self.dataSource czpickerView:self detailForRow:indexPath.row];
+            cell.detailTextLabel.numberOfLines = 0;
+            cell.detailTextLabel.lineBreakMode = NSLineBreakByWordWrapping;
+        }
     }
-    
     if(self.checkmarkColor){
         cell.tintColor = self.checkmarkColor;
     }
     if(self.tableViewCellFont) {
         cell.textLabel.font = self.tableViewCellFont;
     }
+    if(self.tableViewCellDetailFont) {
+        cell.detailTextLabel.font = self.tableViewCellDetailFont;
+    }
     if(self.tableViewCellColor) {
         cell.textLabel.textColor = self.tableViewCellColor;
     }
+    if(self.cellTextLabelShouldWrap) {
+        cell.textLabel.numberOfLines = 0;
+        cell.textLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    }
+    if([self.dataSource respondsToSelector:@selector(czpickerView:detailLabelColorForRow:)]) {
+        cell.detailTextLabel.textColor = [self.dataSource czpickerView:self textLabelColorForRow:indexPath.row];
+    }
+    if([self.dataSource respondsToSelector:@selector(czpickerView:textLabelColorForRow:)]) {
+        cell.textLabel.textColor = [self.dataSource czpickerView:self textLabelColorForRow:indexPath.row];
+    }
+    
+    cell.separatorInset = UIEdgeInsetsMake(0, 3, 0, 11);
+    
     return cell;
 }
 
