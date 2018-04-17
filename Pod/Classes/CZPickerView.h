@@ -66,6 +66,9 @@ didConfirmWithItemsAtRows:(NSArray *)rows;
 /** delegate method for canceling */
 - (void)czpickerViewDidClickCancelButton:(CZPickerView *)pickerView;
 
+/** delegate method for pressing of extra button */
+- (void)czpickerViewDidClickExtraButton:(CZPickerView *)pickerView;
+
 /** delegate method for confirming with no row selection */
 - (void)czpickerViewDidConfirmWithNoSelection:(CZPickerView *)pickerView;
 
@@ -92,7 +95,8 @@ didConfirmWithItemsAtRows:(NSArray *)rows;
  */
 - (id)initWithHeaderTitle:(NSString *)headerTitle
         cancelButtonTitle:(NSString *)cancelButtonTitle
-       confirmButtonTitle:(NSString *)confirmButtonTitle;
+       confirmButtonTitle:(NSString *)confirmButtonTitle
+         extraButtonTitle:(NSString *)extraButtonTitle;
 
 /** show the picker */
 - (void)show;
@@ -129,6 +133,12 @@ didConfirmWithItemsAtRows:(NSArray *)rows;
 
 /** should cell text wrap **/
 @property BOOL cellTextLabelShouldWrap;
+
+/** should we show extra (3rd) button in picker footer **/
+@property BOOL showExtraButton;
+
+/** should we show only a single button on picker **/
+@property BOOL showSingleButton;
 
 /** picker header background color */
 @property (nonatomic, strong) UIColor *headerBackgroundColor;
@@ -178,6 +188,18 @@ didConfirmWithItemsAtRows:(NSArray *)rows;
 /** picker confirm button highlighted state color */
 @property (nonatomic, strong) UIColor *confirmButtonHighlightedColor;
 
+/** picker extra button label text font */
+@property (nonatomic, strong) UIFont *extraButtonLabelTextFont;
+
+/** picker extra button background color */
+@property (nonatomic, strong) UIColor *extraButtonBackgroundColor;
+
+/** picker extra button normal state color */
+@property (nonatomic, strong) UIColor *extraButtonNormalColor;
+
+/** picker extra button highlighted state color */
+@property (nonatomic, strong) UIColor *extraButtonHighlightedColor;
+
 /** tint color for tableview, also checkmark color */
 @property (nonatomic, strong) UIColor *checkmarkColor;
 
@@ -187,4 +209,7 @@ didConfirmWithItemsAtRows:(NSArray *)rows;
 /** width of picker */
 @property CGFloat pickerWidth;
 
+@property UIImage* imageForExtraButton;
+
 @end
+

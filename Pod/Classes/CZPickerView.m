@@ -23,6 +23,7 @@ typedef void (^CZDismissCompletionCallback)(void);
 @property NSString *headerTitle;
 @property NSString *cancelButtonTitle;
 @property NSString *confirmButtonTitle;
+@property NSString *extraButtonTitle;
 @property UIView *backgroundDimmingView;
 @property UIView *containerView;
 @property UIView *headerView;
@@ -36,7 +37,8 @@ typedef void (^CZDismissCompletionCallback)(void);
 
 - (id)initWithHeaderTitle:(NSString *)headerTitle
         cancelButtonTitle:(NSString *)cancelButtonTitle
-       confirmButtonTitle:(NSString *)confirmButtonTitle{
+       confirmButtonTitle:(NSString *)confirmButtonTitle
+         extraButtonTitle:(NSString *)extraButtonTitle {
     self = [super init];
     if(self){
         if([self needHandleOrientation]){
@@ -52,6 +54,7 @@ typedef void (^CZDismissCompletionCallback)(void);
         
         self.confirmButtonTitle = confirmButtonTitle;
         self.cancelButtonTitle = cancelButtonTitle;
+        self.extraButtonTitle = extraButtonTitle;
         
         self.headerTitle = headerTitle ? headerTitle : @"";
         self.headerTitleColor = [UIColor whiteColor];
@@ -100,12 +103,12 @@ typedef void (^CZDismissCompletionCallback)(void);
                                           frame.origin.y,
                                           frame.size.width,
                                           self.headerView.frame.size.height + self.tableView.frame.size.height + self.footerview.frame.size.height);
+    
     self.containerView.center = CGPointMake(self.center.x, self.center.y + self.frame.size.height);
     
 }
 
 - (void)performContainerAnimation {
-    
     [UIView animateWithDuration:self.animationDuration delay:0 usingSpringWithDamping:0.7f initialSpringVelocity:3.0f options:UIViewAnimationOptionAllowAnimatedContent animations:^{
         self.containerView.center = self.center;
     } completion:^(BOOL finished) {
@@ -254,14 +257,28 @@ typedef void (^CZDismissCompletionCallback)(void);
         return [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
     }
     CGRect rect = self.tableView.frame;
-    CGRect newRect = CGRectMake(0,
-                                rect.origin.y + rect.size.height,
-                                rect.size.width,
-                                CZP_FOOTER_HEIGHT);
-    CGRect leftRect = CGRectMake(0,0, newRect.size.width /2, CZP_FOOTER_HEIGHT);
-    CGRect rightRect = CGRectMake(newRect.size.width /2,0, newRect.size.width /2, CZP_FOOTER_HEIGHT);
+    CGRect newRect = CGRectMake(0, rect.origin.y + rect.size.height, rect.size.width, CZP_FOOTER_HEIGHT);
+    CGRect leftRect = CGRectMake(0,0, newRect.size.width * (self.showExtraButton ? 0.4 : 0.5), CZP_FOOTER_HEIGHT);
+    CGRect centreRect = CGRectMake((self.showExtraButton ? newRect.size.width * 0.4 : newRect.size.width / 2),0, newRect.size.width * (self.showExtraButton ? 0.4 : 0.5), CZP_FOOTER_HEIGHT);
+    CGRect rightRect = CGRectMake(newRect.size.width * 0.8, 0, newRect.size.width * 0.2, CZP_FOOTER_HEIGHT);
     
     UIView *view = [[UIView alloc] initWithFrame:newRect];
+    
+    if (self.showSingleButton) {
+        centreRect = CGRectMake(0,0, newRect.size.width, CZP_FOOTER_HEIGHT);
+        UIButton *confirmButton = [[UIButton alloc] initWithFrame:centreRect];
+        confirmButton = [[UIButton alloc] initWithFrame:centreRect];
+        [confirmButton setTitle:self.confirmButtonTitle forState:UIControlStateNormal];
+        [confirmButton setTitleColor:self.confirmButtonNormalColor forState:UIControlStateNormal];
+        [confirmButton setTitleColor:self.confirmButtonHighlightedColor forState:UIControlStateHighlighted];
+        confirmButton.titleLabel.font = self.confirmButtonLabelTextFont ? self.confirmButtonLabelTextFont : [UIFont systemFontOfSize:16];
+        confirmButton.backgroundColor = self.confirmButtonBackgroundColor;
+        [confirmButton addTarget:self action:@selector(confirmButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+        
+        [view addSubview:confirmButton];
+        return view;
+    }
+    
     UIButton *cancelButton = [[UIButton alloc] initWithFrame:leftRect];
     [cancelButton setTitle:self.cancelButtonTitle forState:UIControlStateNormal];
     [cancelButton setTitleColor: self.cancelButtonNormalColor forState:UIControlStateNormal];
@@ -271,7 +288,7 @@ typedef void (^CZDismissCompletionCallback)(void);
     [cancelButton addTarget:self action:@selector(cancelButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:cancelButton];
     
-    UIButton *confirmButton = [[UIButton alloc] initWithFrame:rightRect];
+    UIButton *confirmButton = [[UIButton alloc] initWithFrame:centreRect];
     [confirmButton setTitle:self.confirmButtonTitle forState:UIControlStateNormal];
     [confirmButton setTitleColor:self.confirmButtonNormalColor forState:UIControlStateNormal];
     [confirmButton setTitleColor:self.confirmButtonHighlightedColor forState:UIControlStateHighlighted];
@@ -279,6 +296,18 @@ typedef void (^CZDismissCompletionCallback)(void);
     confirmButton.backgroundColor = self.confirmButtonBackgroundColor;
     [confirmButton addTarget:self action:@selector(confirmButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [view addSubview:confirmButton];
+    
+    if (self.showExtraButton) {
+        UIButton *extraButton = [[UIButton alloc] initWithFrame:rightRect];
+        //[extraButton setTitle:self.extraButtonTitle forState:UIControlStateNormal];
+        [extraButton setTitleColor:self.extraButtonNormalColor forState:UIControlStateNormal];
+        [extraButton setTitleColor:self.extraButtonHighlightedColor forState:UIControlStateHighlighted];
+        [extraButton setImage:self.imageForExtraButton forState:UIControlStateNormal];
+        extraButton.backgroundColor = self.extraButtonBackgroundColor;
+        [extraButton addTarget:self action:@selector(extraButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+        [view addSubview:extraButton];
+    }
+    
     return view;
 }
 
@@ -315,7 +344,9 @@ typedef void (^CZDismissCompletionCallback)(void);
             if (self.selectedIndexPaths > 0) {
                 [self.delegate czpickerView:self didConfirmWithItemsAtRows:[self selectedRows]];
             } else {
-                [self.delegate czpickerViewDidConfirmWithNoSelection:self];
+                if([self.delegate respondsToSelector:@selector(czpickerViewDidConfirmWithNoSelection:)]) {
+                    [self.delegate czpickerViewDidConfirmWithNoSelection:self];
+                }
             }
         }
         
@@ -324,8 +355,18 @@ typedef void (^CZDismissCompletionCallback)(void);
                 NSInteger row = ((NSIndexPath *)self.selectedIndexPaths[0]).row;
                 [self.delegate czpickerView:self didConfirmWithItemAtRow:row];
             } else {
-                [self.delegate czpickerViewDidConfirmWithNoSelection:self];
+                if([self.delegate respondsToSelector:@selector(czpickerViewDidConfirmWithNoSelection:)]) {
+                    [self.delegate czpickerViewDidConfirmWithNoSelection:self];
+                }
             }
+        }
+    }];
+}
+
+- (IBAction)extraButtonPressed:(id)sender{
+    [self dismissPicker:^{
+        if([self.delegate respondsToSelector:@selector(czpickerViewDidClickExtraButton:)]){
+            [self.delegate czpickerViewDidClickExtraButton:self];
         }
     }];
 }
@@ -512,3 +553,4 @@ typedef void (^CZDismissCompletionCallback)(void);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 @end
+
